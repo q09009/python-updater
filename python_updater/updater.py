@@ -358,7 +358,8 @@ class Updater(QObject):
 
     @staticmethod
     def _is_protected_relative_path(relative_path: str) -> bool:
-        parts = [part.lower() for part in relative_path.strip("/").split("/") if part]
+        normalized = relative_path.replace("\\", "/")
+        parts = [part.lower() for part in normalized.strip("/").split("/") if part]
         return any(part in PROTECTED_PATHS for part in parts)
 
     def _set_status_message(self, message: str) -> None:
