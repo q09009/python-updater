@@ -17,6 +17,7 @@ PROGRAM_EXE_NAME = "MyProgram.exe"
 NEW_PROGRAM_EXE_NAME = "MyProgram_new.exe"
 ZIP_NAME = "package.zip"
 EXTRACT_DIR_NAME = "package_extract"
+# Optional nested root folder name used by packaged zip releases.
 OPTIONAL_PACKAGE_SUBDIR_NAME = "maeipmaechuljang"
 PROTECTED_PATHS = {"data", "logs"}
 SHUTDOWN_WAIT_MS = 2000
@@ -252,6 +253,7 @@ class Updater(QObject):
 
     def _apply_zip_package(self) -> bool:
         if sys.platform != "win32":
+            self._set_status_message("ZIP updates are supported on Windows only.")
             return False
 
         zip_path = Path.cwd() / ZIP_NAME
