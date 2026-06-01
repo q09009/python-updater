@@ -1,2 +1,5 @@
 __pycache__/
 *.pyc
+python_updater/dist/
+python_updater/build/
+*.spec

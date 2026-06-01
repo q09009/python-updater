@@ -9,11 +9,13 @@ import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
+import psutil  # 👑 윈도우 프로세스 제어용 라이브러리 추가!
 
-from PyQt6.QtCore import QObject, QProcess, QTimer, QUrl, pyqtSignal
-from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
+from PySide6.QtCore import QObject, QProcess, QTimer, QUrl
+from PySide6.QtCore import Signal
+from PySide6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 
-PROGRAM_EXE_NAME = "MyProgram.exe"
+PROGRAM_EXE_NAME = "appmaeipmaechuljang.exe"
 NEW_PROGRAM_EXE_NAME = "MyProgram_new.exe"
 ZIP_NAME = "package.zip"
 EXTRACT_DIR_NAME = "package_extract"
@@ -33,10 +35,10 @@ class AssetInfo:
 
 
 class Updater(QObject):
-    status_message_changed = pyqtSignal(str)
-    status_log_changed = pyqtSignal(str)
-    progress_changed = pyqtSignal(int)
-    finished = pyqtSignal()
+    status_message_changed = Signal(str)
+    status_log_changed = Signal(str)
+    progress_changed = Signal(int)
+    finished = Signal()
 
     def __init__(self, current_version: str, repo_owner: str, repo_name: str) -> None:
         super().__init__()
@@ -73,6 +75,20 @@ class Updater(QObject):
 
     def start_update(self) -> None:
         self._set_progress(0)
+        target_app = PROGRAM_EXE_NAME 
+        self._set_status_message(f"Closing {target_app} for a safe update...")
+        
+        for proc in psutil.process_iter(['name']):
+            try:
+                # 'name' 키값은 고정! 뒤의 비교 대상을 변수 처리!
+                if proc.info['name'] == target_app:
+                    proc.kill()
+                    self._set_status_message(f"{target_app} closed successfully.")
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
+
+        QTimer.singleShot(1000, self._continue_start_update)
+    def _continue_start_update(self) -> None:
         self._set_status_message("Checking latest release information...")
         self._request_latest_release()
 
@@ -383,7 +399,7 @@ class Updater(QObject):
 
     def _handle_failure(self, message: str) -> None:
         self._set_status_message(message)
-        self._finish_and_exit()
+        #self._finish_and_exit()
 
     def _finish_and_exit(self, delay_ms: int = 1200) -> None:
         QTimer.singleShot(delay_ms, self.finished.emit)

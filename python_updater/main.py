@@ -3,8 +3,8 @@ from __future__ import annotations
 import os
 import sys
 
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtWidgets import (
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtWidgets import (
     QApplication,
     QLabel,
     QMainWindow,
@@ -14,11 +14,11 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from .updater import Updater
+from updater import Updater
 
 DEFAULT_VERSION = "v0.0.0"
 DEFAULT_REPO_OWNER = "q09009"
-DEFAULT_REPO_NAME = "qt-updater"
+DEFAULT_REPO_NAME = "maeipmaechuljang"
 
 
 def parse_current_version(argv: list[str]) -> str:
@@ -95,7 +95,7 @@ def main() -> int:
     window = UpdaterWindow(updater)
     window.show()
 
-    updater.finished.connect(app.quit)
+    #updater.finished.connect(app.quit)
     QTimer.singleShot(0, updater.start_update)
 
     return app.exec()
